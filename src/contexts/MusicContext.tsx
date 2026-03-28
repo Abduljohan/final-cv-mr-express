@@ -149,30 +149,38 @@ export const MusicProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const audio = new Audio("/audio/bgmusic.mp3");
     audio.loop = true;
-    audio.volume = 1; // Web Audio API controls actual volume
+    audio.volume = 1;
     audio.preload = "auto";
-    audio.crossOrigin = "anonymous";
     audioRef.current = audio;
 
     const startMusic = () => {
-      if (audioRef.current && !hasInteractedRef.current) {
-        hasInteractedRef.current = true;
+      if (!audioRef.current || hasInteractedRef.current) return;
+      hasInteractedRef.current = true;
+
+      // Try Web Audio API enhancement
+      try {
         initAudioContext();
-
-        if (audioCtxRef.current?.state === "suspended") {
-          audioCtxRef.current.resume();
-        }
-
-        audioRef.current.play().then(() => {
-          fadeIn();
-          setIsPlaying(true);
-          localStorage.setItem("mrexpress-music", "on");
-        }).catch(() => {});
+      } catch (e) {
+        console.warn("Web Audio init failed, using fallback", e);
       }
+
+      if (audioCtxRef.current?.state === "suspended") {
+        audioCtxRef.current.resume().catch(() => {});
+      }
+
+      audioRef.current.play().then(() => {
+        fadeIn();
+        setIsPlaying(true);
+        localStorage.setItem("mrexpress-music", "on");
+      }).catch((err) => {
+        console.warn("Audio play failed:", err);
+      });
     };
 
-    document.addEventListener("click", startMusic, { once: true });
-    document.addEventListener("touchstart", startMusic, { once: true });
+    const handleInteraction = () => startMusic();
+
+    document.addEventListener("click", handleInteraction);
+    document.addEventListener("touchstart", handleInteraction);
 
     if ("mediaSession" in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
@@ -183,7 +191,7 @@ export const MusicProvider = ({ children }: { children: ReactNode }) => {
       });
 
       navigator.mediaSession.setActionHandler("play", () => {
-        if (audioCtxRef.current?.state === "suspended") audioCtxRef.current.resume();
+        if (audioCtxRef.current?.state === "suspended") audioCtxRef.current.resume().catch(() => {});
         audioRef.current?.play().then(() => {
           fadeIn();
           setIsPlaying(true);
@@ -199,8 +207,8 @@ export const MusicProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return () => {
-      document.removeEventListener("click", startMusic);
-      document.removeEventListener("touchstart", startMusic);
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
       audio.pause();
       audio.src = "";
       audioCtxRef.current?.close();
