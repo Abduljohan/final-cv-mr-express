@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Ship, Clock, HelpCircle } from "lucide-react";
+import { Menu, X, ChevronDown, Ship, Clock, HelpCircle, Volume2, VolumeX } from "lucide-react";
 import logoImg from "@/assets/logo-mrexpress.png";
+import { useMusicContext } from "@/contexts/MusicContext";
 
 const mainLinks = [
   { to: "/", label: "Beranda" },
@@ -24,6 +25,7 @@ const Navbar = () => {
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { isPlaying, isMuted, toggleMute } = useMusicContext();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -140,6 +142,15 @@ const Navbar = () => {
             </AnimatePresence>
           </div>
 
+          <button
+            onClick={toggleMute}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+            aria-label={isMuted ? "Unmute musik" : "Mute musik"}
+            title={isMuted ? "Unmute musik" : "Mute musik"}
+          >
+            {isMuted || !isPlaying ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+
           <a
             href="https://wa.me/6282336829960"
             target="_blank"
@@ -150,13 +161,22 @@ const Navbar = () => {
           </a>
         </div>
 
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden p-2 text-foreground"
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <button
+            onClick={toggleMute}
+            className="p-2 text-muted-foreground hover:text-primary transition-colors"
+            aria-label={isMuted ? "Unmute musik" : "Mute musik"}
+          >
+            {isMuted || !isPlaying ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+          </button>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 text-foreground"
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}

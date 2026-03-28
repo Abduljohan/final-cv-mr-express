@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import SplashScreen from "@/components/SplashScreen";
 import BackgroundMusic from "@/components/BackgroundMusic";
+import { MusicProvider } from "@/contexts/MusicContext";
 
 import Index from "./pages/Index";
 import TentangKami from "./pages/TentangKami";
@@ -27,6 +28,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <MusicProvider>
         <Toaster />
         <Sonner />
         {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
@@ -48,6 +50,7 @@ const App = () => {
           <WhatsAppFloat />
           <BackgroundMusic />
         </BrowserRouter>
+        </MusicProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
