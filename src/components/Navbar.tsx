@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Ship, Clock, HelpCircle } from "lucide-react";
+import { Menu, X, ChevronDown, Ship, Clock, HelpCircle, Volume2, VolumeX } from "lucide-react";
 import logoImg from "@/assets/logo-mrexpress.png";
+import { useMusicContext } from "@/contexts/MusicContext";
 
 const mainLinks = [
   { to: "/", label: "Beranda" },
